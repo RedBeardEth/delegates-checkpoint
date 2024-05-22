@@ -1,7 +1,7 @@
 import { validateAndParseAddress } from 'starknet';
 import { TokenHolder, Delegate, Governance } from '../.checkpoint/models';
 
-export const DECIMALS = 18;
+export const DECIMALS = 0;
 
 export const BIGINT_ZERO = BigInt(0);
 

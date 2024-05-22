@@ -65,9 +65,7 @@ export const handleTransfer: CheckpointWriter = async ({ event }) => {
 
   if (from != ZERO_ADDRESS) {
     const fromHolderPreviousBalance = fromHolder.tokenBalanceRaw;
-    fromHolder.tokenBalanceRaw = (
-      BigInt(fromHolder.tokenBalanceRaw) - BigInt(event.value)
-    ).toString();
+    fromHolder.tokenBalanceRaw = (BigInt(fromHolder.tokenBalanceRaw) - BigInt(1)).toString();
     fromHolder.tokenBalance = formatUnits(fromHolder.tokenBalanceRaw, DECIMALS);
 
     if (
@@ -88,11 +86,9 @@ export const handleTransfer: CheckpointWriter = async ({ event }) => {
   }
 
   const toHolderPreviousBalance = toHolder.tokenBalanceRaw;
-  toHolder.tokenBalanceRaw = (BigInt(toHolder.tokenBalanceRaw) + BigInt(event.value)).toString();
+  toHolder.tokenBalanceRaw = (BigInt(toHolder.tokenBalanceRaw) + BigInt(1)).toString();
   toHolder.tokenBalance = formatUnits(toHolder.tokenBalanceRaw, DECIMALS);
-  toHolder.totalTokensHeldRaw = (
-    BigInt(toHolder.totalTokensHeldRaw) + BigInt(event.value)
-  ).toString();
+  toHolder.totalTokensHeldRaw = (BigInt(toHolder.totalTokensHeldRaw) + BigInt(1)).toString();
   toHolder.totalTokensHeld = formatUnits(toHolder.totalTokensHeldRaw, DECIMALS);
 
   if (
