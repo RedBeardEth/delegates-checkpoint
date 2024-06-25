@@ -18,6 +18,7 @@ type Delegate {
   delegatedVotes: BigDecimalVP!
   tokenHoldersRepresentedAmount: Int!
   tokenHoldersRepresented: [TokenHolder]! @derivedFrom(field: "delegate")
+  delegateProfile: [DelegateProfile]! @derivedFrom(field: "delegateId")
 }
 
 type Governance {
@@ -28,4 +29,17 @@ type Governance {
   totalDelegates: Int!
   delegatedVotesRaw: BigIntVP!
   delegatedVotes: BigDecimalVP!
+}
+
+type DelegateProfile {
+    id: String!
+    delegateId: Delegate
+    statement: String!
+    interests: String
+    twitter: String
+    github: String
+    telegram: String
+    discord: String
+    createdAt: DateTime!
+    updatedAt: DateTime!
 }
