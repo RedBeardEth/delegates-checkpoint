@@ -33,13 +33,13 @@ type Governance {
 
 type DelegateProfile {
     id: String!
-    delegateId: Delegate
+    delegateId: String!
     statement: String!
     interests: String
     twitter: String
     github: String
     telegram: String
     discord: String
-    createdAt: DateTime!
-    updatedAt: DateTime!
+    createdAt: String!
+    updatedAt: String!
 }
