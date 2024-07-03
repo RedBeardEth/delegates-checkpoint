@@ -1,5 +1,5 @@
 {
-  "network_node_url": "https://starknet-sepolia.infura.io/v3/46a5dd9727bf48d4a132672d3f376146",
+  "network_node_url": "https://starknet-sepolia.infura.io/v3/badbe99a05ad427a9ddbbed9e002caf6",
   "optimistic_indexing": true,
   "decimal_types": {
     "BigIntVP": {
@@ -13,24 +13,9 @@
   },
   "sources": [
     {
-      "contract": "0x3e64aa2c669ffd66a1c78d120812005d8f7e03b75696dd9c0f06e8def143844",
-      "start": 76103,
+      "contract": "0x03e64aa2c669ffd66a1c78d120812005d8f7e03b75696dd9c0f06e8def143844",
+      "start": 76102,
       "abi": "Token",
-      "events": [
-        {
-          "name": "DelegateChanged",
-          "fn": "handleDelegateChanged"
-        },
-        {
-          "name": "DelegateVotesChanged",
-          "fn": "handleDelegateVotesChanged"
-        }
-      ]
-    },
-    {
-      "contract": "0x00c530f2c0aa4c16a0806365b0898499fba372e5df7a7172dc6fe9ba777e8007",
-      "start": 644053,
-      "abi": "Token2",
       "events": [
         {
           "name": "DelegateChanged",
