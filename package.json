@@ -25,6 +25,7 @@
     "@types/mysql": "^2.15.21",
     "@types/node": "^18.11.6",
     "dotenv": "^16.0.1",
+    "lodash.clonedeep": "^4.5.0",
     "nodemon": "^2.0.19",
     "starknet": "^5.19.3",
     "ts-node": "^10.8.1",
