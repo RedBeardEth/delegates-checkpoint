@@ -1,5 +1,5 @@
 {
-  "network_node_url": "https://starknet-mainnet.infura.io/v3/ee98f29298784027b0afa71b7e05d3ed",
+  "network_node_url": "https://starknet-mainnet.infura.io/v3/badbe99a05ad427a9ddbbed9e002caf6",
   "optimistic_indexing": true,
   "decimal_types": {
     "BigIntVP": {
