@@ -32,6 +32,50 @@ const checkpoint = new Checkpoint(config, indexer, schema, {
 });
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const INTERNAL_TABLES = ['_metadatas', '_checkpoints', '_template_sources'];
+const ENTITY_TABLES = ['governances', 'delegates'];
+
+async function bootstrapCheckpointIfNeeded() {
+  const { knex } = checkpoint.getBaseContext();
+  const missingInternalTables: string[] = [];
+  const missingEntityTables: string[] = [];
+
+  for (const table of INTERNAL_TABLES) {
+    const exists = await knex.schema.hasTable(table);
+
+    if (!exists) {
+      missingInternalTables.push(table);
+    }
+  }
+
+  for (const table of ENTITY_TABLES) {
+    const exists = await knex.schema.hasTable(table);
+
+    if (!exists) {
+      missingEntityTables.push(table);
+    }
+  }
+
+  if (missingInternalTables.length === 0 && missingEntityTables.length === 0) {
+    return;
+  }
+
+  if (missingInternalTables.length === INTERNAL_TABLES.length) {
+    console.log('Bootstrapping Checkpoint tables...');
+    await checkpoint.resetMetadata();
+    await checkpoint.reset();
+    return;
+  }
+
+  const missingTables = [...missingInternalTables, ...missingEntityTables];
+  if (missingTables.length > 0) {
+    throw new Error(
+      `Checkpoint database is partially initialized. Missing tables: ${missingTables.join(
+        ', '
+      )}. Reset the database before restarting the indexer.`
+    );
+  }
+}
 
 async function run() {
   const server = new ApolloServer({
@@ -58,8 +102,7 @@ async function run() {
     await sleep(PRODUCTION_INDEXER_DELAY);
   }
 
-  //await checkpoint.reset();
-  //await checkpoint.resetMetadata();
+  await bootstrapCheckpointIfNeeded();
   console.log('Checkpoint ready');
 
   await checkpoint.start();
