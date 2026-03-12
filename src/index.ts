@@ -44,19 +44,51 @@ checkpoint.addIndexer(
 );
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-const INTERNAL_TABLES = ['_metadatas', '_checkpoints', '_template_sources'];
+const INTERNAL_TABLES = ['_blocks', '_metadatas', '_checkpoints', '_template_sources'];
 const ENTITY_TABLES = ['governances', 'delegates'];
+const REQUIRED_TABLE_COLUMNS: Record<string, string[]> = {
+  _blocks: ['indexer', 'block_number', 'hash'],
+  _metadatas: ['id', 'indexer', 'value'],
+  _checkpoints: ['id', 'indexer', 'block_number', 'contract_address'],
+  _template_sources: ['indexer', 'contract_address', 'start_block', 'template'],
+  governances: ['id', 'uid', '_indexer', 'block_range'],
+  delegates: ['id', 'uid', '_indexer', 'block_range']
+};
+
+async function findMissingColumns(table: string): Promise<string[]> {
+  const { knex } = checkpoint.getBaseContext();
+  const requiredColumns = REQUIRED_TABLE_COLUMNS[table] ?? [];
+  const missingColumns: string[] = [];
+
+  for (const column of requiredColumns) {
+    const exists = await knex.schema.hasColumn(table, column);
+
+    if (!exists) {
+      missingColumns.push(column);
+    }
+  }
+
+  return missingColumns;
+}
 
 async function bootstrapCheckpointIfNeeded() {
   const { knex } = checkpoint.getBaseContext();
   const missingInternalTables: string[] = [];
   const missingEntityTables: string[] = [];
+  const invalidTables: string[] = [];
 
   for (const table of INTERNAL_TABLES) {
     const exists = await knex.schema.hasTable(table);
 
     if (!exists) {
       missingInternalTables.push(table);
+      continue;
+    }
+
+    const missingColumns = await findMissingColumns(table);
+
+    if (missingColumns.length > 0) {
+      invalidTables.push(`${table} (missing columns: ${missingColumns.join(', ')})`);
     }
   }
 
@@ -65,28 +97,33 @@ async function bootstrapCheckpointIfNeeded() {
 
     if (!exists) {
       missingEntityTables.push(table);
+      continue;
+    }
+
+    const missingColumns = await findMissingColumns(table);
+
+    if (missingColumns.length > 0) {
+      invalidTables.push(`${table} (missing columns: ${missingColumns.join(', ')})`);
     }
   }
 
-  if (missingInternalTables.length === 0 && missingEntityTables.length === 0) {
+  if (
+    missingInternalTables.length === 0 &&
+    missingEntityTables.length === 0 &&
+    invalidTables.length === 0
+  ) {
     return;
   }
 
-  if (missingInternalTables.length === INTERNAL_TABLES.length) {
-    console.log('Bootstrapping Checkpoint tables...');
-    await checkpoint.resetMetadata();
-    await checkpoint.reset();
-    return;
-  }
+  const resetReasons = [
+    ...missingInternalTables.map(table => `${table} (missing table)`),
+    ...missingEntityTables.map(table => `${table} (missing table)`),
+    ...invalidTables
+  ];
 
-  const missingTables = [...missingInternalTables, ...missingEntityTables];
-  if (missingTables.length > 0) {
-    throw new Error(
-      `Checkpoint database is partially initialized. Missing tables: ${missingTables.join(
-        ', '
-      )}. Reset the database before restarting the indexer.`
-    );
-  }
+  console.log(`Resetting Checkpoint schema: ${resetReasons.join('; ')}`);
+  await checkpoint.resetMetadata();
+  await checkpoint.reset();
 }
 
 async function run() {
