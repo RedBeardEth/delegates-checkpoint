@@ -1,20 +1,10 @@
 {
   "network_node_url": "https://starknet-mainnet.infura.io/v3/ee98f29298784027b0afa71b7e05d3ed",
   "optimistic_indexing": false,
-  "decimal_types": {
-    "BigIntVP": {
-      "p": 80,
-      "d": 0
-    },
-    "BigDecimalVP": {
-      "p": 80,
-      "d": 20
-    }
-  },
   "sources": [
     {
       "contract": "0x07ae27a31bb6526e3de9cf02f081f6ce0615ac12a6d7b85ee58b8ad7947a2809",
-      "start": 664172,
+      "start": 859092,
       "abi": "Token",
       "events": [
         {

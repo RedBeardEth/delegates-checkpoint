@@ -6,7 +6,9 @@ import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import * as writer from './writer';
+import { STARKNET_INDEXER_NAME } from './constants';
 import config from './config.json';
+import overridesConfig from './overrides.json';
 import Token from './abis/Token.json';
 import Token2 from './abis/Token2.json';
 
@@ -21,15 +23,25 @@ if (process.env.CA_CERT) {
   process.env.CA_CERT = process.env.CA_CERT.replace(/\\n/g, '\n');
 }
 
-config.network_node_url = process.env.NETWORK_NODE_URL ?? config.network_node_url;
+const checkpointConfig = {
+  ...config,
+  network_node_url: process.env.NETWORK_NODE_URL ?? config.network_node_url,
+  abis: { Token, Token2 }
+};
 
-const indexer = new starknet.StarknetIndexer(writer);
-const checkpoint = new Checkpoint(config, indexer, schema, {
+const checkpoint = new Checkpoint(schema, {
   logLevel: LogLevel.Info,
   resetOnConfigChange: true,
+  skipBlockFetching: true,
   prettifyLogs: process.env.NODE_ENV !== 'production',
-  abis: { Token, Token2 }
+  overridesConfig
 });
+
+checkpoint.addIndexer(
+  STARKNET_INDEXER_NAME,
+  checkpointConfig,
+  new starknet.StarknetIndexer(writer)
+);
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const INTERNAL_TABLES = ['_metadatas', '_checkpoints', '_template_sources'];
